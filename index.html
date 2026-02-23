@@ -2,23 +2,28 @@
 <html>
 <head>
   <style>
-   h1 {text-align: center;} 
-   body {font-family: "Times New Roman";}
+  body {
+    font-family: "Times New Roman";
+    outline: 2px dashed blue;
+  }
+  h1 {text-align: center;} 
+  div { display: flex;}
   </style>
-  <title>Course Reverse Search</title>
+  <title>Course Reverse Search 💻</title>
 </head>
   <body>
+    <div>
+      <h1> Course ReverseSearch</h1>
+      <p>This website's purpose is to serve as a website to take in user inputs for the program.</p>
+      <p>The program's purpose is to gather data from City College of San Francisco's public website of Degrees and Certificates, then organize it. After that, the user enters a course number (i.e. CNIT 120) and the output will be a list of Certificates and Degrees that course qualifies for. Invalid inputs will return an ERROR message.</p>
+            
+      <form action="/action_page.php">
+        <label for="course_name">Enter course name:</label><br>
+        <input type="text" id="user_input" name="user_input" value=""><br>
+        <input type="submit" value="Submit">
+      </form> 
+    </div>
   
-  <h1> Course ReverseSearch</h1>
-  <p>This website's purpose is to serve as a website to take in user inputs for the program.</p>
-  <p>The program's purpose is to gather data from City College of San Francisco's public website of Degrees and Certificates, then organize it. After that, the user enters a course number (i.e. CNIT 120) and the output will be a list of Certificates and Degrees that course qualifies for. Invalid inputs will return an ERROR message.</p>
-  <h2>  Hello World! 2.22.26  </h2>
-  
-  <form action="/action_page.php">
-    <label for="course_name">Enter course name:</label><br>
-    <input type="text" id="user_input" name="user_input" value=""><br>
-    <input type="submit" value="Submit">
-  </form> 
   <!--
   TODO: "Submit" is the user input value and has to go somewhere
   TODO: Add Javascript to check if the user input is valid, make regex?
