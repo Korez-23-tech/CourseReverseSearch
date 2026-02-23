@@ -1,25 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
- h1 {text-align: center;} 
- body {font-family: "Times New Roman";}
-</style>
-<title>Course Reverse Search</title>
+  <style>
+   h1 {text-align: center;} 
+   body {font-family: "Times New Roman";}
+  </style>
+  <title>Course Reverse Search</title>
 </head>
-<body>
-
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
-<h2>  Hello World! 2.22.26  </h2>
-
-<form action="/action_page.php">
-  <label for="course_name">Enter course name:</label><br>
-  <input type="text" id="fname" name="fname" value=""><br>
-  <input type="submit" value="Submit">
-</form> 
-<!--
- TODO: Submit has to go somewhere
- -->
-</body>
+  <body>
+  
+  <h1> Course ReverseSearch</h1>
+  <p>This website's purpose is to serve as a website to take in user inputs for the program.</p>
+  <p>The program's purpose is to gather data from City College of San Francisco's public website of Degrees and Certificates, then organize it. After that, the user enters a course number (i.e. CNIT 120) and the output will be a list of Certificates and Degrees that course qualifies for. Invalid inputs will return an ERROR message.</p>
+  <h2>  Hello World! 2.22.26  </h2>
+  
+  <form action="/action_page.php">
+    <label for="course_name">Enter course name:</label><br>
+    <input type="text" id="user_input" name="user_input" value=""><br>
+    <input type="submit" value="Submit">
+  </form> 
+  <!--
+  TODO: "Submit" is the user input value and has to go somewhere
+  TODO: Add Javascript to check if the user input is valid, make regex?
+  	TODO: Check whether adding the Javascript is necessary for this task.
+  TODO: Add a function where the database also saves the link and lets the user click it to go directly?
+  TODO: Check in to see how often things should be scrapped.
+  Sift out the defunct majors and certificates?
+  Maybe add CSS to make everything look?
+   -->
+  </body>
 </html>
