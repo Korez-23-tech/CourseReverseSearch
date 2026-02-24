@@ -3,7 +3,13 @@ function handleSubmit(event) {
   const userInput = document.getElementById('user_input').value;
   document.getElementById('output_text').textContent = userInput;
   document.getElementById('output').style.display = 'block';
+  if (useRegex(userInput)) {
+    document.getElementById('regex_result').textContent = 'Input matches the regex pattern.';
+  } else {
+    document.getElementById('regex_result').textContent = 'Input does NOT match the regex pattern.';
+  }
 }
+
 function useRegex(input) {
   let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/i;
   return regex.test(input); // return true or false
@@ -29,9 +35,25 @@ function updateDateTime() {
   const timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
   
   document.getElementById('datetime-text').textContent = `${dateString} | ${timeString}`;
-  setInterval(updateDateTime, 1000);
 }
 
 // Update immediately and then every second
 updateDateTime();
 setInterval(updateDateTime, 1000);
+
+/*
+function updateClock() {
+  const now = new Date();
+  let hours = now.getHours();
+  const meridien = hours >= 12 ? "PM": "AM";
+  hours = hours % 12 || 12;
+  hours = hours.toString().padStart(2, 0);
+  const minutes = now.getMinutes().toString().padStart(2, 0);
+  const seconds = now.getSeconds().toString().padStart(2, 0);
+  const timeString = `${hours}:${minutes}:${seconds} ${meridien}`;
+  document.getElementById("datetime-text").textContent = timeString;
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+*/
