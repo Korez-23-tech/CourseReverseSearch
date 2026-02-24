@@ -12,7 +12,7 @@ function handleSubmit(event) {
 }
 
 function useRegex(input) {
-  let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/i;
+  let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/; // Example regex: matches "CS 101", "MATH 202", etc.
   return regex.test(input); // return true or false
 }
 
