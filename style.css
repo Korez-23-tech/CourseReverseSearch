@@ -18,7 +18,7 @@ div {
   outline-offset: 15px;
   outline-color: Black;
   outline: 5px solid Black;
-  border-radius: 100px;
+  border-radius: 15px;
 }
 .clock {
   position: fixed; 
