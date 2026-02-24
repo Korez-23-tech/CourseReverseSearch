@@ -84,6 +84,10 @@
         document.getElementById('output_text').textContent = userInput;
         document.getElementById('output').style.display = 'block';
       }
+      function useRegex(input) {
+        let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/i;
+        return regex.test(input); // return true or false
+      }  
     </script>
   </body>
 </html>
