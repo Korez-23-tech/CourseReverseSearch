@@ -5,7 +5,9 @@ TODO: Check whether adding the Javascript is necessary for this task.
       function useRegex(input) {
         let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/i;
         return regex.test(input); // return true or false
-      }    
+      }
+    Testing more Regex
+      ^[A-Za-z]{2,4}\s(?:[A-Za-z]\d{1,4}|\d{1,4}[A-Za-z]?|\d{1,4})$
 TODO: Add a function where the database also saves the link and lets the user click it to go directly?
 TODO: Check in to see how often things should be scrapped.
 Sift out the defunct majors and certificates?
