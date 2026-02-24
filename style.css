@@ -18,6 +18,7 @@
     outline-offset: 15px;
     outline-color: Black;
     outline: 5px solid Black;
+    border-radius: 100px;
   }
   p { 
     text-align: left;
