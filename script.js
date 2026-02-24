@@ -29,6 +29,7 @@ function updateDateTime() {
   const timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
   
   document.getElementById('datetime-text').textContent = `${dateString} | ${timeString}`;
+  setInterval(updateDateTime, 1000);
 }
 
 // Update immediately and then every second
