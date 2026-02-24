@@ -3,7 +3,9 @@ function handleSubmit(event) {
   const userInput = document.getElementById('user_input').value;
   document.getElementById('output_text').textContent = userInput;
   document.getElementById('output').style.display = 'block';
-  if (useRegex(userInput)) {
+  let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/i;
+  //regex.test(input); // return true or false
+  if (regex.test(userInput)) {
     document.getElementById('regex_result').textContent = 'Input matches the regex pattern.';
   } else {
     document.getElementById('regex_result').textContent = 'Input does NOT match the regex pattern.';
