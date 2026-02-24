@@ -57,6 +57,9 @@ input[type="submit"] {
 input[type="submit"]:hover {
   background-color: #0056b3;
 }
+.response_to_input {
+  outline: white;
+}
 #output {
   margin-top: 20px;
   padding: 10px;
