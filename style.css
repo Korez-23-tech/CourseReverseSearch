@@ -1,3 +1,57 @@
-body {
+  body {
     font-family: "Times New Roman";
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 { 
+    text-align: center; 
+  } 
+  div { 
+    display: block;
+    width: auto;
+    max-width: 600px;
+    text-align: left;
+    outline-offset: 15px;
+    outline-color: Black;
+    outline: 5px solid Black;
+  }
+  p { 
+    text-align: left;
+  }
+  form { 
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  label {
+    margin-top: 10px;
+  }
+  input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  input[type="submit"] {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  input[type="submit"]:hover {
+    background-color: #0056b3;
+  }
+  #output {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: none;
+  }
