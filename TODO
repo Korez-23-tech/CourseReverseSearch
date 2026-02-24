@@ -1,0 +1,12 @@
+TODO: "Submit" is the user input value and has to go somewhere
+TODO: Add Javascript to check if the user input is valid, make regex?
+TODO: Check whether adding the Javascript is necessary for this task.
+   I made the Javascript in Regex Generator https://regex-generator.olafneumann.org/?sampleText=CNIT%20160A&flags=PWi&selection=0%7CAlphanumeric%20characters,4%7CCharacter,5%7CAlphanumeric%20characters
+      function useRegex(input) {
+        let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/i;
+        return regex.test(input); // return true or false
+      }    
+TODO: Add a function where the database also saves the link and lets the user click it to go directly?
+TODO: Check in to see how often things should be scrapped.
+Sift out the defunct majors and certificates?
+Maybe add CSS to make everything look?
