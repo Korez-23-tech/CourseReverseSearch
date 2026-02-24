@@ -21,7 +21,7 @@
       </div>
     </div>
     
-    <div id="datetime-display" style="position: fixed; bottom: 10px; right: 10px; padding: 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px; font-family: monospace;">
+    <div id="datetime-display" style="position: fixed; bottom: 10px; padding: 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 100px; font-family: monospace;">
       <strong>Date & Time:</strong> <span id="datetime-text"></span>
     </div>
     
@@ -35,7 +35,7 @@
       function useRegex(input) {
         let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/i;
         return regex.test(input); // return true or false
- }
+      }
       
       // Update date and time continuously
       function updateDateTime() {
