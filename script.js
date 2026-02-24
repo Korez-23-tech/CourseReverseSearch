@@ -1,11 +1,11 @@
 function handleSubmit(event) {
   event.preventDefault();
   const userInput = document.getElementById('user_input').value;
-  document.getElementById('output_text').textContent = userInput;
-  document.getElementById('output').style.display = 'block';
+  // document.getElementById('output_text').textContent = userInput;
+  // document.getElementById('output').style.display = 'block';
   let regex = /^[A-Za-z0-9]+ [A-Za-z0-9]+$/i;
-  //regex.test(input); // return true or false
-  if (regex.test(userInput)) {
+  // regex.test(input); // return true or false
+  if (regex.test(userInput)) { // Data validation using regex
     document.getElementById('regex_result').textContent = 'Input matches the regex pattern.';
   } else {
     document.getElementById('regex_result').textContent = 'Input does NOT match the regex pattern.';
