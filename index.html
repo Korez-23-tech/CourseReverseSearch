@@ -16,7 +16,7 @@
 
         <form onsubmit="handleSubmit(event)">
             <label for="course_name">Enter course name:</label><br>
-            <input type="text" id="user_input" name="user_input" value=""><br>
+            <input type="text" id="user_input" name="" value=""><br>
             <input type="submit" value="Submit">
         </form>
         <div id="output" class="response_to_input">
@@ -24,8 +24,13 @@
         </div>
     </div>
 
+    <!--
     <div class="clock" id="datetime-display">
         <strong>Date & Time:</strong> <span id="datetime-text"></span>
+    </div>
+    -->
+    <div class="clock">
+        <strong>Date & Time:</strong> <span id="simpleClock"></span>
     </div>
     <!--  style="position: fixed; bottom: 10px; padding: 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 100px; font-family: monospace;"-->
     <script>

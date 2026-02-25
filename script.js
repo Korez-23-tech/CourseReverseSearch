@@ -1,7 +1,7 @@
 function handleSubmit(event) {
     event.preventDefault();
     const userInput = document.getElementById('user_input').value;
-    // document.getElementById('output_text').textContent = userInput;
+    document.getElementById('output_text').textContent = userInput;
     document.getElementById('output').style.display = 'block';
 
     if (useRegex(userInput)) {
@@ -36,7 +36,7 @@ function updateDateTime() {
     hours = hours ? hours : 12; // 12-hour format
     const timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
 
-    document.getElementById('datetime-text').innerHTML = `${dateString} | ${timeString}`;
+    document.getElementById('datetime-text').textContent = `${dateString} | ${timeString}`;
 }
 
 // Update immediately and then every second
@@ -62,7 +62,7 @@ setInterval(updateClock, 1000);
 
 // document.getElementById('demo').innerHTML = Date()
 
-/*
+
 function simpleClock(){
 	const d = new Date();
 	document.getElementById("datetime-text").innerHTML = d;
@@ -70,4 +70,3 @@ function simpleClock(){
 
 simpleClock();
 setInterval(simpleClock, 1000);
-*/
