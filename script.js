@@ -60,3 +60,5 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 */
+
+// document.getElementById('demo').innerHTML = Date()
