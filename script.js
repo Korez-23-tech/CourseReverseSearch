@@ -3,12 +3,13 @@ function handleSubmit(event) {
   const userInput = document.getElementById('user_input').value;
   document.getElementById('output_text').textContent = userInput;
   document.getElementById('output').style.display = 'block';
-  
+  /*
   if (useRegex(userInput)) {
-    // document.getElementById('regex_result').textContent = 'Input matches the regex pattern. Fetching course information...';
+    document.getElementById('regex_result').textContent = 'Input matches the regex pattern. Fetching course information...';
   } else {
-    // document.getElementById('regex_result').textContent = 'Input does NOT match the regex pattern. Try your course name followed by your course number, e.g., "CS 101".';
+    document.getElementById('regex_result').textContent = 'Input does NOT match the regex pattern. Try your course name followed by your course number, e.g., "CS 101".';
   }
+  */
 }
 
 function useRegex(input) {
