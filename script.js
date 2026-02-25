@@ -1,7 +1,7 @@
 function handleSubmit(event) {
   event.preventDefault();
   const userInput = document.getElementById('user_input').value;
-  // document.getElementById('output_text').textContent = userInput;
+  document.getElementById('output_text').textContent = userInput;
   document.getElementById('output').style.display = 'block';
   
   if (useRegex(userInput)) {
