@@ -61,3 +61,13 @@ setInterval(updateClock, 1000);
 */
 
 // document.getElementById('demo').innerHTML = Date()
+
+/*
+function clock(){
+	const d = new Date();
+	document.getElementById("demo").innerHTML = d;
+}
+
+clock();
+setInterval(clock, 1000);
+*/
