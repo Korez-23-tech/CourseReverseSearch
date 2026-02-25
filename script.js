@@ -35,7 +35,7 @@ function updateDateTime() {
   hours = hours ? hours : 12; // 12-hour format
   const timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
   
-  document.getElementById('datetime-text').textContent = `${dateString} | ${timeString}`;
+  document.getElementById('datetime-text').innerHTML = `${dateString} | ${timeString}`;
 }
 
 // Update immediately and then every second
