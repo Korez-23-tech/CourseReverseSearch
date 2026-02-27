@@ -12,3 +12,6 @@ TODO: Add a function where the database also saves the link and lets the user cl
 TODO: Check in to see how often things should be scrapped.
 Sift out the defunct majors and certificates?
 Maybe add CSS to make everything look?
+
+Clock ideas
+- https://www.w3schools.com/js/tryit.asp?filename=tryjs_timing_clock
