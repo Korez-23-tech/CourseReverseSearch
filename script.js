@@ -1,3 +1,4 @@
+/*
 // Update date and time continuously
 function updateDateTime() {
     const now = new Date();
@@ -23,7 +24,7 @@ function updateDateTime() {
 // Update immediately and then every second
 updateDateTime();
 setInterval(updateDateTime, 1000);
-
+*/
 //"use strict";
 
 function useRegex(input) {
@@ -65,7 +66,7 @@ setInterval(updateClock, 1000);
 
 // document.getElementById('demo').innerHTML = Date()
 
-/*
+
 function simpleClock(){
 	const d = new Date();
 	document.getElementById("datetime-text").innerHTML = d;
@@ -73,4 +74,3 @@ function simpleClock(){
 
 simpleClock();
 setInterval(simpleClock, 1000);
-*/
