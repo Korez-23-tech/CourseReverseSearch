@@ -1,6 +1,6 @@
 function simpleClock(){
 	const d = new Date();
-	document.getElementById("datetime-text").innerHTML = d;
+	document.getElementById("simpleClock_output").innerHTML = d;
 }
 
 simpleClock();
