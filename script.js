@@ -26,3 +26,7 @@ function handleSubmit(event) {
         document.getElementById('regex_result').textContent = 'Input does NOT match the regex pattern. Try your course name followed by your course number, e.g., "CS 101".';
     }
 }
+
+function pageLoadFunction() {
+  alert("Page is loaded");
+}
