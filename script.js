@@ -26,7 +26,7 @@ function handleSubmit(event) {
 
 function simpleClock(){
 	const d = new Date();
-	document.getElementById('simpleClock_output').innerHTML = d;
+	document.getElementById('simpleClock_output').textContent = d;
 }
 
 simpleClock();
