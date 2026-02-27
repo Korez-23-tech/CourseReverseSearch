@@ -1,10 +1,7 @@
-function simpleClock(){
-	const d = new Date();
-	document.getElementById('simpleClock_output').innerHTML = d;
-}
 
-simpleClock();
-setInterval(simpleClock, 1000);
+function pageLoadFunction() {
+  alert("Page is loaded");
+}
 
 function useRegex(input) {
     //"use strict";
@@ -27,6 +24,10 @@ function handleSubmit(event) {
     }
 }
 
-function pageLoadFunction() {
-  alert("Page is loaded");
+function simpleClock(){
+	const d = new Date();
+	document.getElementById('simpleClock_output').innerHTML = d;
 }
+
+simpleClock();
+setInterval(simpleClock, 1000);
