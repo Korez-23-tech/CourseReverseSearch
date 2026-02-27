@@ -44,5 +44,11 @@ updateClock();
 setInterval(updateClock, 1000);
 */
 
+    <!--
+    <div class="clock" id="datetime-display">
+        <strong>Date & Time:</strong> <span id="datetime-text"></span>
+    </div>
+    -->
+
 // document.getElementById('demo').innerHTML = Date()
 
