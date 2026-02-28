@@ -29,5 +29,7 @@ function simpleClock(){
 	document.getElementById('simpleClock_output').textContent = d;
 }
 
+window.onload = simpleClock();
+
 // simpleClock();
 // setInterval(simpleClock, 1000);
