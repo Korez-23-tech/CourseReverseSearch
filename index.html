@@ -3,9 +3,18 @@
   index.html
   Course Reverse Search — City College of San Francisco
 
-  PURPOSE:
-    This page allows a user to enter a course number (e.g., "CNIT 120") and
-    discover every Certificate and Associate's Degree that course qualifies toward.
+  HOSTING: GitHub Pages
+    This file, script.js, and style.css are served directly by GitHub Pages.
+    GitHub Pages is a static file host — it has no server-side runtime and
+    cannot execute Node.js code or communicate with a database.
+
+    server.js is hosted separately on a Node.js platform (e.g., Render).
+    script.js communicates with it via fetch() over HTTPS.
+
+    [GitHub Pages]                      [Render / Railway]
+    index.html  (this file)             server.js
+    script.js   — HTTPS fetch() →       /search endpoint
+    style.css                           pool.query() → TimescaleDB
 
   WORKFLOW (matches the 5-step project outline):
     STEP 1 — User types a course number into the text input field below.
@@ -153,7 +162,7 @@
     position: fixed in style.css keeps this pinned to the bottom of
     the viewport regardless of scroll position.
   ============================================================== -->
-  <div class="clock main_text">
+  <div class="clock">
     <strong>Date &amp; Time:</strong>
     <span id="simpleClock_output">Loading...</span>
   </div>
