@@ -50,18 +50,39 @@ const API_BASE = 'https://your-backend-url.onrender.com';
 
 function useRegex(input) {
 
-  const regex = /^[A-Za-z]{2,4}\s\d{1,4}[A-Za-z]?$/;
+  const regex = /^[A-Za-z]{2,4}\s(C\d{4}|\d{1,4}[A-Za-z]?)$/;
   // Pattern breakdown:
   //   ^             — Start anchor. Match must begin at character 1.
-  //   [A-Za-z]{2,4} — 2 to 4 letters. Department codes: CS, CNIT, MATH.
+  //   [A-Za-z]{2,4} — 2 to 4 letters. Department codes: CS, CNIT, MATH, PSYC.
   //   \s            — Exactly one whitespace character (required separator).
+  //   (...)         — Alternation group: matches EITHER the CCN format OR the
+  //                   traditional format. The two branches are:
+  //
+  //   Branch 1 — Common Course Numbering (CCN) format, per AB 1111 (Fall 2025+):
+  //   C\d{4}        — A literal "C" (for "Common") followed by exactly 4 digits.
+  //                   CCN course numbers run from 1000 through 4000.
+  //                   The "C" is case-insensitive here due to the [A-Za-z] flag
+  //                   on the prefix, but in practice CCSF uses uppercase "C".
+  //                   Examples: C1000, C1001, C4000
+  //                   Full input examples: PSYC C1000, ENGL C1001, STAT C1000
+  //
+  //   Branch 2 — Traditional (pre-CCN) course number format:
   //   \d{1,4}       — 1 to 4 digits. Course numbers: 1, 80, 101, 9999.
-  //   [A-Za-z]?     — 0 or 1 optional trailing letter. Suffixes like "A".
-  //   $             — End anchor. Nothing may follow the optional letter.
+  //   [A-Za-z]?     — 0 or 1 optional trailing letter suffix, e.g. "A".
+  //                   Full input examples: CS 101, CNIT 120, MATH 80, BIOL 11A
+  //
+  //   $             — End anchor. Nothing may follow the last character.
+  //
+  // WHY an alternation group and not a simpler pattern?
+  //   The CCN format introduces an alphabetic character ("C") in the position
+  //   where the old format expects a digit. The two formats are mutually
+  //   exclusive at that position, so a single linear pattern cannot cover both
+  //   without becoming overly permissive (e.g., accepting "MATH A101" which is
+  //   not a valid CCSF course code in either system).
 
   return regex.test(input.trim());
-  // .trim() strips leading/trailing whitespace so "  CS 101  " still passes.
-  // .test() returns true if the pattern matches, false otherwise.
+  // .trim() strips leading/trailing whitespace so "  PSYC C1000  " still passes.
+  // .test() returns true if the pattern matches either branch, false otherwise.
 }
 
 
