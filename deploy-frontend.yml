@@ -1,0 +1,74 @@
+# .github/workflows/deploy-frontend.yml
+#
+# PURPOSE:
+#   Automatically deploys the frontend (index.html, script.js, style.css)
+#   to GitHub Pages every time code is pushed to the main branch.
+#   Without this file, GitHub Pages must be manually triggered or configured
+#   to deploy from a branch, which is less reliable and requires extra steps.
+#
+# HOW TO ACTIVATE:
+#   1. Push this file to the repository.
+#   2. In the repository on GitHub: Settings → Pages → Source → GitHub Actions.
+#   3. Every subsequent push to main will trigger this workflow automatically.
+
+name: Deploy Frontend to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    # "on.push.branches" defines the trigger condition.
+    # This workflow runs only when commits are pushed to the "main" branch.
+    # Pushes to other branches (e.g., feature branches) do not trigger it.
+
+jobs:
+  deploy:
+    # A "job" is a set of steps that run sequentially on a single machine.
+    # GitHub provides the machine (called a "runner") for free.
+
+    runs-on: ubuntu-latest
+    # Specifies the operating system of the runner machine.
+    # ubuntu-latest is the most common choice — lightweight and well-supported.
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      # These permissions grant the workflow the right to:
+      #   contents: read  — check out the repository code
+      #   pages: write    — publish files to GitHub Pages
+      #   id-token: write — authenticate with GitHub's deployment system
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      # Declares this job as a deployment to the "github-pages" environment.
+      # GitHub uses this to display the live URL in the repository's
+      # Deployments panel after a successful run.
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # Pulls the repository's code onto the runner machine.
+        # Without this step, the runner has no files to deploy.
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+        # Configures the runner with the settings needed to publish to Pages.
+
+      - name: Upload frontend files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+          # Uploads everything in the repository root as the artifact to deploy.
+          # This includes index.html, script.js, and style.css.
+          # server.js is also in this directory but GitHub Pages ignores it —
+          # it serves only static files and has no Node.js runtime to run it.
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        # Publishes the uploaded artifact to the GitHub Pages CDN.
+        # After this step, the site is live at:
+        #   https://yourusername.github.io/repository-name/
