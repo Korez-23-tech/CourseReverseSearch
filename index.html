@@ -1,32 +1,162 @@
 <!DOCTYPE html>
-<html>
+<!--
+  index.html
+  Course Reverse Search — City College of San Francisco
+
+  PURPOSE:
+    This page allows a user to enter a course number (e.g., "CNIT 120") and
+    discover every Certificate and Associate's Degree that course qualifies toward.
+
+  WORKFLOW (matches the 5-step project outline):
+    STEP 1 — User types a course number into the text input field below.
+    STEP 2 — User clicks "Submit"; the form calls handleSubmit(event) in script.js.
+    STEP 3 — script.js validates the input, then sends it to server.js via fetch().
+              server.js queries the PostgreSQL database for matching records.
+    STEP 4 — The database returns all Certificates and Associate's Degrees that
+              list this course as a qualifying course. server.js sends them back
+              as a JSON array.
+    STEP 5 — script.js receives the JSON and renders the results in the
+              #output section of this page.
+-->
+<html lang="en">
 
 <head>
-    <!--  <style></style>-->
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
-    <title>💻 Course Reverse Search</title>
+  <!-- Character encoding: ensures special characters display correctly -->
+  <meta charset="UTF-8">
+
+  <!-- Responsive scaling: makes the layout adapt correctly on mobile screens -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- External stylesheet: all visual styling lives in style.css, not here -->
+  <link rel="stylesheet" href="style.css">
+
+  <!--
+    script.js is loaded with "defer" so the browser parses the full HTML first.
+    Without defer, if script.js ran before the HTML was parsed, functions like
+    document.getElementById() would return null because the elements would not
+    yet exist. "defer" guarantees the DOM is ready before any script logic runs.
+  -->
+  <script src="script.js" defer></script>
+
+  <title>💻 Course Reverse Search</title>
 </head>
 
 <body>
-    <div class="main_text">
-        <h1>💻 Course Reverse Search 💻</h1>
-        <p>This website's purpose is to serve as a website to take in user inputs for the program.</p>
-        <p>The program's purpose is to gather data from City College of San Francisco's public website of Degrees and Certificates, then organize it. After that, the user enters a course number (i.e. CNIT 120) and the output will be a list of Certificates and Degrees that course qualifies for. Invalid inputs will return an ERROR message.</p>
 
-        <form onsubmit="handleSubmit(event)">
-            <label for="course_name">Enter course name:</label><br>
-            <input type="text" id="user_input" name="course_name" value="   "><br>
-            <input type="submit" value="Submit">
-        </form>
-        <div id="output" class="response_to_input">
-            <strong>Your input: </strong><span id="output_text"></span> <span id="regex_result"></span>
-        </div>
+  <!-- =========================================================
+    MAIN CONTENT CONTAINER
+    The .main_text div wraps the heading, description, form, and
+    results. style.css centers this block and applies the border.
+  ========================================================== -->
+  <div class="main_text">
+
+    <h1>💻 Course Reverse Search 💻</h1>
+
+    <!-- Short description so users understand the tool's purpose immediately -->
+    <p>
+      Enter a CCSF course number below to find every Certificate and
+      Associate's Degree that course qualifies toward.
+    </p>
+    <p>
+      <strong>Format:</strong> Department code followed by course number
+      — for example, <em>CNIT 120</em> or <em>CS 101</em>.
+      Invalid formats will return an error message.
+    </p>
+
+
+    <!-- =============================================================
+      STEP 1 & 2 — INPUT FORM
+      The user types a course number here (Step 1) and clicks Submit
+      (Step 2). The form's onsubmit attribute calls handleSubmit(event)
+      in script.js instead of performing a page reload.
+
+      onsubmit="handleSubmit(event)":
+        - "event" is the browser's native SubmitEvent object.
+        - handleSubmit() immediately calls event.preventDefault() to
+          suppress the default form navigation behavior, keeping the
+          user on this page while JavaScript handles the request.
+    ============================================================== -->
+    <form onsubmit="handleSubmit(event)">
+
+      <label for="user_input">Enter course number:</label>
+
+      <!--
+        The text input where the user types their course number.
+        id="user_input" is referenced in script.js via:
+          document.getElementById('user_input').value
+        value="" starts the field empty (removed the default whitespace
+        that was present in the original version).
+      -->
+      <input
+        type="text"
+        id="user_input"
+        name="course_name"
+        placeholder="e.g., CNIT 120"
+        autocomplete="off"
+        value=""
+      >
+
+      <input type="submit" value="Search">
+    </form>
+
+
+    <!-- =============================================================
+      STEP 5 — OUTPUT SECTION
+      This div is hidden by default (display: none in style.css).
+      After the user submits and results are retrieved, script.js
+      sets outputEl.style.display = 'block' to make it visible,
+      then populates #result_list and #status_message with content.
+
+      The output is split into two parts:
+        #status_message — shows validation errors or loading state
+        #result_list    — shows the final list of Certificates/Degrees
+    ============================================================== -->
+    <div id="output" class="response_to_input">
+
+      <!--
+        Displays the course number the user searched for, so the
+        output is clearly labeled. script.js populates this via:
+          document.getElementById('search_label').textContent = userInput;
+      -->
+      <p id="search_label"></p>
+
+      <!--
+        STEP 3 status feedback — shows "Validating...", "Searching...",
+        or an error message (invalid format, no results, server error).
+        Populated by script.js using resultEl.textContent = '...'.
+      -->
+      <p id="status_message"></p>
+
+      <!--
+        STEP 4 & 5 — The retrieved Certificates and Associate's Degrees
+        are rendered here as an unordered list (<ul>) by script.js:
+          resultListEl.innerHTML = `<ul>${list}</ul>`;
+        Each <li> represents one matching Certificate or Degree.
+        This element starts empty and is only populated on a successful
+        database response.
+      -->
+      <div id="result_list"></div>
+
     </div>
-    <div class="clock" onload="simpleClock()" defer>
-        <strong>Date & Time:</strong> <span id='simpleClock_output'>BLANK</span>
-    </div>
-    <script>
-    </script>
+    <!-- end #output -->
+
+  </div>
+  <!-- end .main_text -->
+
+
+  <!-- =============================================================
+    CLOCK WIDGET
+    Displays the current date and time at the bottom of the page.
+    Populated on page load by the simpleClock() function in script.js
+    via: document.getElementById('simpleClock_output').textContent = d;
+
+    position: fixed in style.css keeps this pinned to the bottom of
+    the viewport regardless of scroll position.
+  ============================================================== -->
+  <div class="clock">
+    <strong>Date &amp; Time:</strong>
+    <span id="simpleClock_output">Loading...</span>
+  </div>
+
 </body>
 </html>
