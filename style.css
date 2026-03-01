@@ -10,7 +10,7 @@ body {
 h1 { 
   text-align: center; 
 } 
-div { /* Formerly known as div */
+.main_text { /* Formerly known as div */
   display: block;
   width: auto;
   max-width: 600px;
