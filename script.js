@@ -17,7 +17,7 @@
 //           format BEFORE sending it to the server. This is client-side
 //           validation — fast, no network required, immediate user feedback.
 //
-// VALID EXAMPLES:   "CS 101", "CNIT 120", "MATH 80A" 
+// VALID EXAMPLES:   "CS 101", "CNIT 120", "MATH 80A"
 // INVALID EXAMPLES: "CS101" (no space), "123 CS" (wrong order), "TOOLONG 1"
 // -----------------------------------------------------------------------------
 
@@ -264,8 +264,20 @@ function simpleClock() {
 // simpleClock() tries to find it with getElementById().
 // -----------------------------------------------------------------------------
 
-window.onload = simpleClock;
-// NOTE: No parentheses after simpleClock.
-// "simpleClock"   — assigns the function reference. Runs when onload fires. (correct)
-// "simpleClock()" — calls the function immediately and assigns its return value
-//                   (undefined) to window.onload. Clock never updates.  (incorrect)
+window.onload = function () {
+  // Run simpleClock() once immediately so the clock shows the correct time
+  // the instant the page loads, rather than waiting one full second for the
+  // first setInterval tick to fire.
+  simpleClock();
+
+  // setInterval(fn, ms) calls the provided function repeatedly, once every
+  // "ms" milliseconds, for the lifetime of the page. 1000ms = 1 second.
+  // This is what makes the clock update in real time — without it, the
+  // timestamp would be frozen at the moment the page first loaded.
+  //
+  // The return value is a numeric interval ID. It is not stored here because
+  // this clock is intended to run indefinitely. If the clock ever needed to
+  // be stopped (e.g., on a single-page app route change), the ID would be
+  // passed to clearInterval(id) to cancel it.
+  setInterval(simpleClock, 1000);
+};
