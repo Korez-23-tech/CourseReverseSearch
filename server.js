@@ -1,5 +1,5 @@
 // =============================================================================
-// server.js
+// server.js 
 // Backend server for the Course Reverse Search application.
 //
 // DEPLOYMENT ARCHITECTURE (GitHub Pages):
