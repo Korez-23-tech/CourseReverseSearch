@@ -2,237 +2,226 @@
 // server.js
 // Backend server for the Course Reverse Search application.
 //
-// ROLE IN THE ARCHITECTURE:
-//   This file runs in Node.js — NOT in the browser. It acts as the middleman
-//   between the browser (index.html / script.js) and the PostgreSQL database.
-//   The browser cannot talk to PostgreSQL directly, so it sends HTTP requests
-//   to this server, which then queries the database and sends results back.
+// DEPLOYMENT ARCHITECTURE (GitHub Pages):
+//   This file is NOT hosted on GitHub Pages. GitHub Pages serves only static
+//   files (index.html, script.js, style.css). This file must be deployed
+//   separately to a Node.js hosting platform such as Render or Railway.
 //
-//   [Browser] <--- HTTP (JSON) ---> [This server] <--- TCP/IP ---> [TimescaleDB]
+//   [GitHub Pages]                         [Render / Railway]
+//   index.html                             server.js  (this file)
+//   script.js       — HTTPS fetch() →      /search endpoint
+//   style.css                              pool.query() → TimescaleDB
+//
+// CHANGES FROM LOCALHOST VERSION:
+//   1. "import 'dotenv/config'"  added — loads environment variables from .env
+//   2. "import cors from 'cors'" added — required for cross-origin requests
+//   3. "app.use(cors(...))"      added — permits requests from GitHub Pages URL
+//   4. "app.use(express.static)" REMOVED — GitHub Pages serves frontend files
+//   5. "process.env.DATABASE_URL" replaces hardcoded connection string
+//   6. "process.env.PORT"        replaces hardcoded port 3000
 // =============================================================================
 
 
 // -----------------------------------------------------------------------------
 // SECTION 1: IMPORTS
-// Node.js uses "import" statements (ES Module syntax) to load external packages.
-// These packages must be installed first via: npm install express pg
 // -----------------------------------------------------------------------------
 
+import 'dotenv/config';
+// dotenv reads the .env file in the project root and loads every key=value
+// pair into process.env, making them accessible as process.env.KEY_NAME.
+// This must be the FIRST import so environment variables are available to all
+// code below. The .env file is never committed to the repository — credentials
+// stay off GitHub entirely.
+// Install via: npm install dotenv
+
 import express from 'express';
-// "express" is a lightweight web framework for Node.js.
-// It handles incoming HTTP requests (like the form submission from the browser)
-// and sends HTTP responses back. Without it, raw Node.js HTTP handling is
-// significantly more verbose.
+// Express handles incoming HTTP requests and routes them to the correct handler.
 
 import pg from 'pg';
-// "pg" is the node-postgres package — the official PostgreSQL driver for Node.js.
-// It implements the PostgreSQL wire protocol, which is the binary communication
-// format the PostgreSQL server expects. The browser has no access to this protocol;
-// it can only be used server-side in Node.js.
+// node-postgres: implements the PostgreSQL wire protocol so Node.js can
+// communicate with the TimescaleDB Cloud instance over TCP/IP.
+
+import cors from 'cors';
+// CORS = Cross-Origin Resource Sharing.
+// Browsers enforce a security rule: a page served from Origin A cannot call
+// an API at Origin B unless Origin B explicitly says it permits that.
+// GitHub Pages (https://yourusername.github.io) and the backend server
+// (https://your-app.onrender.com) are two different origins. Without this
+// package, the browser silently blocks every fetch() response before
+// script.js can read it, regardless of whether the request reached the server.
+// Install via: npm install cors
 
 
 // -----------------------------------------------------------------------------
 // SECTION 2: INITIALIZATION
-// Set up the Express application and extract the Pool class from the pg package.
 // -----------------------------------------------------------------------------
 
 const { Pool } = pg;
-// "Pool" is destructured from the pg package.
-// A Pool manages a collection of reusable database connections.
-//
-// WHY USE A POOL INSTEAD OF A SINGLE CONNECTION?
-//   Opening a TCP connection to PostgreSQL is expensive (authentication handshake,
-//   SSL negotiation, etc.). A Pool opens several connections upfront and reuses
-//   them across multiple incoming requests, improving performance significantly.
-//   When a request comes in, the Pool lends a connection; when the query finishes,
-//   the connection is returned to the pool rather than closed.
+// Pool manages a collection of reusable database connections.
+// Reusing connections avoids the overhead of a full TCP + TLS + authentication
+// handshake on every incoming request.
 
 const app = express();
-// Creates an Express application instance. All route definitions and middleware
-// are attached to this object.
+// Creates the Express application. All middleware and routes attach to this.
 
 
 // -----------------------------------------------------------------------------
 // SECTION 3: MIDDLEWARE
-// Middleware are functions that run on every incoming request before it reaches
-// a route handler. They pre-process the request in some way.
+// Middleware runs on every request before it reaches a route handler.
+// Order matters — middleware executes in the order app.use() is called.
 // -----------------------------------------------------------------------------
 
-app.use(express.json());
-// Parses incoming requests whose Content-Type is "application/json".
-// Without this, req.body would be undefined when the browser sends JSON.
-// script.js sends JSON via fetch(), so this middleware is required.
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN
+  // ALLOWED_ORIGIN is set in the .env file (locally) and in the hosting
+  // platform's environment variable settings (in production).
+  //
+  // Example value: https://yourusername.github.io
+  //
+  // This tells the browser: "only requests originating from this exact URL
+  // are permitted to read responses from this server."
+  // Setting origin: '*' would allow any website to call this endpoint —
+  // acceptable for fully public APIs, but inappropriate here because real
+  // database queries are being executed on behalf of the caller.
+}));
+// The cors() middleware adds the following HTTP header to every response:
+//   Access-Control-Allow-Origin: https://yourusername.github.io
+// The browser checks this header. If the current page's origin matches,
+// the response is released to script.js. If not, the browser discards it.
 
-app.use(express.static('.'));
-// Serves static files (index.html, script.js, style.css) from the current
-// directory. When the browser navigates to http://localhost:3000, Express
-// finds and returns index.html automatically. This eliminates the need for
-// a separate file server or opening index.html directly from the filesystem.
+app.use(express.json());
+// Parses the JSON body of incoming POST requests into req.body.
+// Required because script.js sends: { "courseCode": "CNIT 120" } as JSON.
+
+// NOTE: app.use(express.static('.')) has been REMOVED.
+// In the localhost version, Express served index.html, script.js, and
+// style.css. In the GitHub Pages deployment, those files are served directly
+// by GitHub's infrastructure. Having the backend also serve them would be
+// redundant and would cause the backend to receive traffic it does not need.
 
 
 // -----------------------------------------------------------------------------
 // SECTION 4: DATABASE CONNECTION POOL
-// Instantiate the Pool with the TimescaleDB connection string.
-// The connection string encodes every parameter PostgreSQL needs to accept
-// the connection (see PostgreSQL 18.3 Documentation §32.1.1).
 // -----------------------------------------------------------------------------
 
 const pool = new Pool({
-  connectionString: 'postgres://tsdbadmin:@gdj8h4wj0e.kfltst1kf3.tsdb.cloud.timescale.com:37859/tsdb?sslmode=require'
-  //                  ^scheme    ^user      ^password      ^host                                              ^port ^dbname ^ssl
+  connectionString: process.env.DATABASE_URL
+  // DATABASE_URL is defined in the .env file (locally) and as an environment
+  // variable on the hosting platform (in production).
   //
-  // BREAKDOWN OF THE URI (per §32.1.1.2 of the documentation):
-  //   postgres://       — URI scheme; tells the driver this is a PostgreSQL connection
-  //   tsdbadmin         — the PostgreSQL role/user to authenticate as
-  //   <YOUR_PASSWORD>   — the password for that role (never commit this to git)
-  //   @gdj8h4w...com   — the hostname of the TimescaleDB cloud server
-  //   :37859            — the port number (default PostgreSQL port is 5432;
-  //                       TimescaleDB Cloud uses a non-standard port)
-  //   /tsdb             — the name of the database to connect to
-  //   ?sslmode=require  — a query parameter telling the driver to require an
-  //                       encrypted SSL/TLS connection. TimescaleDB Cloud
-  //                       mandates this; a non-SSL connection will be rejected.
+  // Full value format:
+  //   postgres://tsdbadmin:<PASSWORD>@gdj8h4wj0e.kfltst1kf3.tsdb.cloud.timescale.com:37859/tsdb?sslmode=require
+  //
+  // Using process.env means the password never appears in this source file.
+  // If this file is committed to GitHub, no credentials are exposed.
 });
 
 
 // -----------------------------------------------------------------------------
 // SECTION 5: STARTUP CONNECTION VERIFICATION
-// Immediately test that the pool can reach the database when the server starts.
-// This surfaces misconfiguration errors at startup rather than at the first
-// user request.
+// Acquires one connection from the pool at startup to confirm that the
+// DATABASE_URL is valid and the server is reachable. Surfaces credential or
+// network errors immediately rather than at the first user request.
 // -----------------------------------------------------------------------------
 
 pool.connect((err, client, release) => {
-  // pool.connect() acquires one connection from the pool.
-  // It calls this callback with three arguments:
-  //   err     — an Error object if the connection failed, otherwise null
-  //   client  — the connected PGconn client object (§32.1 of documentation)
-  //   release — a function to call when finished, returning the client to the pool
-
   if (err) {
     console.error('Database connection failed:', err.message);
-    // Logs the failure reason. The server continues running, but every
-    // subsequent query will also fail until the connection issue is resolved.
+    // The server continues running after this error. Every subsequent
+    // pool.query() call will also fail until the issue is resolved.
+    // Check that DATABASE_URL is set correctly in the environment variables.
   } else {
     console.log('Connected to TimescaleDB successfully.');
     release();
-    // release() is critical. If omitted, the connection is never returned
-    // to the pool, eventually exhausting all available connections and
-    // causing the application to hang on future requests.
+    // release() returns the borrowed connection to the pool.
+    // Omitting this call would permanently consume one pool slot, eventually
+    // exhausting the pool and causing the server to stop responding.
   }
 });
 
 
 // -----------------------------------------------------------------------------
 // SECTION 6: ROUTE HANDLER — POST /search
-// This is the endpoint that script.js calls via fetch() when the form is submitted.
-// A "route" is a pairing of an HTTP method + URL path to a handler function.
+// Receives a course code from script.js, queries the database, returns results.
+// This is the only endpoint this server exposes.
 // -----------------------------------------------------------------------------
 
 app.post('/search', async (req, res) => {
-  // app.post()  — this route only responds to HTTP POST requests.
-  // '/search'   — the URL path the browser must POST to.
-  // async       — marks the function as asynchronous, enabling use of "await"
-  //               for database calls without blocking the event loop.
-  // req         — the incoming request object (contains body, headers, etc.)
-  // res         — the outgoing response object (used to send data back)
+  // app.post() — responds only to HTTP POST requests at the path '/search'.
+  // async      — required to use "await" on pool.query() inside this function.
+  // req        — the incoming request (body, headers, etc.)
+  // res        — the outgoing response (used to send JSON back to script.js)
 
   const { courseCode } = req.body;
-  // Destructures the "courseCode" property from the JSON body.
-  // The browser sends: { "courseCode": "CNIT 120" }
-  // express.json() middleware (Section 3) parsed that JSON into req.body.
+  // Reads the courseCode property from the parsed JSON body.
+  // script.js sends: { "courseCode": "CNIT 120" }
+  // express.json() middleware already parsed that into req.body.
 
 
   // ---------------------------------------------------------------------------
   // SERVER-SIDE VALIDATION
-  // Client-side validation in script.js can be bypassed by any HTTP client
-  // (e.g., curl, Postman, or a malicious actor). Server-side validation is
-  // therefore not optional — it is the authoritative gatekeeping layer.
+  // This duplicates the regex in script.js intentionally. Client-side
+  // validation can be bypassed by sending a POST request directly via
+  // curl, Postman, or a malicious script. The server must never trust
+  // input that has not been validated server-side.
   // ---------------------------------------------------------------------------
 
   const courseRegex = /^[A-Za-z]{2,4}\s\d{1,4}[A-Za-z]?$/;
-  // Regex breakdown:
-  //   ^           — start of string (no leading characters allowed)
-  //   [A-Za-z]{2,4} — 2 to 4 alphabetic characters (the department code, e.g. "CNIT")
-  //   \s          — exactly one whitespace character (the space between code and number)
-  //   \d{1,4}     — 1 to 4 digits (the course number, e.g. "120")
-  //   [A-Za-z]?   — an optional trailing letter (e.g., "101A")
-  //   $           — end of string (no trailing characters allowed)
-
   if (!courseCode || !courseRegex.test(courseCode.trim())) {
     return res.status(400).json({ error: 'Invalid course code format.' });
-    // 400 Bad Request — the client sent data that failed validation.
-    // res.json() serializes the object to JSON and sets Content-Type automatically.
-    // "return" exits the handler immediately; code below does not execute.
+    // 400 Bad Request — input failed server-side validation.
+    // "return" exits the handler; nothing below executes.
   }
 
 
   // ---------------------------------------------------------------------------
   // DATABASE QUERY
-  // Uses a try/catch block because pool.query() returns a Promise that may
-  // reject if the database is unreachable or the SQL is malformed.
   // ---------------------------------------------------------------------------
 
   try {
     const result = await pool.query(
-      // pool.query() acquires a connection from the pool, executes the SQL,
-      // releases the connection back, and returns a result object.
-      // "await" pauses this async function until the Promise resolves,
-      // without blocking other incoming requests (Node.js is single-threaded
-      // but non-blocking via its event loop).
-
       `SELECT degree_name, certificate_name
        FROM course_qualifications
        WHERE course_code = $1
        ORDER BY degree_name`,
-      // $1 is a positional placeholder — a parameterized query.
-      //
-      // WHY PARAMETERIZED QUERIES?
-      //   If the course code were interpolated directly into the string:
-      //     WHERE course_code = '${courseCode}'   <-- NEVER DO THIS
-      //   A user could input: ' OR '1'='1
-      //   Which would make the query: WHERE course_code = '' OR '1'='1'
-      //   This is a SQL injection attack — it can expose or destroy the database.
-      //   With $1, the driver sends the value as a separate binary parameter,
-      //   and PostgreSQL treats it as data only, never as SQL syntax.
+      // $1 is a parameterized placeholder. The value is sent separately from
+      // the SQL string, so PostgreSQL treats it as pure data — never as SQL.
+      // This prevents SQL injection regardless of what the user typed.
 
       [courseCode.trim().toUpperCase()]
-      // The values array. $1 is replaced by this value server-side.
-      // .trim()        — removes any accidental leading/trailing whitespace
-      // .toUpperCase() — normalizes "cnit 120" to "CNIT 120" for consistent matching
+      // .trim()        — removes accidental whitespace
+      // .toUpperCase() — normalizes "cnit 120" → "CNIT 120" for consistent matching
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'No degrees or certificates found for that course.' });
-      // 404 Not Found — the query succeeded but returned no matching rows.
+      // 404 Not Found — the query ran successfully but returned no rows.
     }
 
     res.json({ results: result.rows });
-    // result.rows is an array of plain JavaScript objects, one per returned row.
-    // Example: [{ degree_name: "Network Security", certificate_name: "Cybersecurity" }]
-    // res.json() converts this to JSON and sends it to the browser.
+    // result.rows is an array of plain objects, one per returned database row.
+    // res.json() serializes it to a JSON string and sends it to script.js.
 
   } catch (err) {
     console.error('Query error:', err.message);
-    // Logs the full error server-side for debugging.
+    // Logs the full technical error server-side for debugging.
 
     res.status(500).json({ error: 'Database query failed.' });
     // 500 Internal Server Error — something went wrong on the server.
-    // The generic message is intentional: detailed database errors should
-    // never be sent to the client, as they may reveal schema information.
+    // The vague message is intentional: detailed database errors must not
+    // be exposed to the client, as they can reveal schema structure.
   }
 });
 
 
 // -----------------------------------------------------------------------------
 // SECTION 7: START THE SERVER
-// Binds the Express application to a local port and begins listening for
-// incoming TCP connections.
 // -----------------------------------------------------------------------------
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
-// app.listen() starts the HTTP server on the specified port.
-// Port 3000 is a convention for local development; production deployments
-// typically use port 80 (HTTP) or 443 (HTTPS).
-// The callback runs once the server is ready to accept connections.
+const PORT = process.env.PORT || 3000;
+// process.env.PORT is provided automatically by hosting platforms like Render
+// and Railway. They assign a port dynamically; hardcoding 3000 would cause
+// the server to fail to bind on those platforms.
+// "|| 3000" provides a fallback for local development where PORT is not set.
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
