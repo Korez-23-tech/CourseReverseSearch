@@ -17,7 +17,7 @@
 //           format BEFORE sending it to the server. This is client-side
 //           validation — fast, no network required, immediate user feedback.
 //
-// VALID EXAMPLES:   "CS 101", "CNIT 120", "MATH 80A"
+// VALID EXAMPLES:   "CS 101", "CNIT 120", "MATH 80A" 
 // INVALID EXAMPLES: "CS101" (no space), "123 CS" (wrong order), "TOOLONG 1"
 // -----------------------------------------------------------------------------
 
