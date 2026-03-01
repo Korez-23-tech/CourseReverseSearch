@@ -78,7 +78,7 @@ app.use(express.static('.'));
 // -----------------------------------------------------------------------------
 
 const pool = new Pool({
-  connectionString: 'postgres://tsdbadmin:<YOUR_PASSWORD>@gdj8h4wj0e.kfltst1kf3.tsdb.cloud.timescale.com:37859/tsdb?sslmode=require'
+  connectionString: 'postgres://tsdbadmin:@gdj8h4wj0e.kfltst1kf3.tsdb.cloud.timescale.com:37859/tsdb?sslmode=require'
   //                  ^scheme    ^user      ^password      ^host                                              ^port ^dbname ^ssl
   //
   // BREAKDOWN OF THE URI (per §32.1.1.2 of the documentation):
