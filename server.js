@@ -72,7 +72,7 @@ const app = express();
 // -----------------------------------------------------------------------------
 
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN
+  origin: process.env.https://korez-23-tech.github.io/CourseReverseSearch/
   // ALLOWED_ORIGIN is set in the .env file (locally) and in the hosting
   // platform's environment variable settings (in production).
   //
