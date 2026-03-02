@@ -28,9 +28,6 @@ div.main_text { /* Formerly known as div */
   border: 1px solid #ccc; 
   border-radius: 10px; 
   font-family: monospace;
-  outline-offset: 15px;
-  outline-color: rgb(0, 0, 0);
-  outline: 5px solid rgb(0, 0, 0);
 }
 p { 
   text-align: left;
